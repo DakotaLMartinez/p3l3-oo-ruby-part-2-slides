@@ -33,15 +33,32 @@ export default {
     caps: '0.2em',
   },
   mdxp: {
-    
+    presenter: {
+      p: {
+        padding: '0'
+      }
+    },
+    slide: {
+      p: {
+        padding: '0 3em'
+      },
+      blockquote: {
+        bg: 'lightgray',
+        
+      },
+      ul: {
+        width: '75%',
+        maxWidth: '850px',
+        margin: '0 auto'
+      },
+      ol: {
+        width: '75%',
+        maxWidth: '850px',
+        margin: '0 auto'
+      }
+    }
   },
   styles: {
-    p: {
-      padding: '0 3em'
-    },
-    blockquote: {
-      bg: 'lightgray',
-      
-    }
+    
   }
 }

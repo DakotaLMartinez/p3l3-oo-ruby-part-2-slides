@@ -1,5 +1,678 @@
-# MDXP
+import TerminalCommand from './components/TerminalCommand';
 
-Write your slide deck here...
+# Object Oriented Ruby part 2
+
 
 ---
+
+<!-- Begin Slide -->
+
+## Key Concepts for the day:
+
+- Mass assignment, keyword arguments
+- Class methods vs Instance methods
+- How to use the `self` keyword and identify what it will refer to
+- Class variables vs Instance variables
+
+<Note>
+
+The methods we'll be working on today are related to persisting and retrieving Dogs/Appointments. These are important tasks that we'll continue to do as we introduce new concepts like databases and ActiveRecord later on in the week. The lectures coming up over the next few days will be introducing variations on the same themes. You'll be seeing how the new concepts apply to the application we've been working on throughout the phase.
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## Keyword Arguments & Mass Assignment
+
+This is what our initialize method looks like currently:
+
+```rb
+class Dog
+  attr_accessor :name, :age, :breed, :favorite_treats
+  def initialize(name, age, breed, favorite_treats)
+    @name = name
+    @age = age
+    @breed = breed
+    @favorite_treats = favorite_treats
+  end
+end
+```
+
+And creating a new instance looks like this:
+
+```rb
+dog = Dog.new("Lennon Snow", "1 year", "Pomeranian", "Cheese!!!")
+```
+
+<Note>
+
+There are a couple of downsides to this approach. 
+
+1. We have to remember the proper order of the arguments or we'll get values assigned to the wrong attributes. 
+
+2. We can't tell from the calling code (where we have `.new`) what the attributes are, which means we're probably going to have to look at that initialize method to see what's going on there.
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## Refactoring initialize
+
+Using keyword arguments instead will solve both of these problems:
+
+```rb
+class Dog
+  attr_accessor :name, :age, :breed, :favorite_treats
+  def initialize(name:, age:, breed:, favorite_treats:)
+    @name = name
+    @age = age
+    @breed = breed
+    @favorite_treats = favorite_treats
+  end
+end
+```
+
+<Note>
+
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## Testing it out
+
+Run 
+
+<TerminalCommand>
+./bin/keyword_arguments_demo
+</TerminalCommand>
+
+to test this out
+
+<TerminalCommand>
+Dog.new(name: "Lennon Snow", breed: "Pomeranian", favorite_treats: "Apples, carrots, cheese", age: "almost 2 years")
+</TerminalCommand>
+
+Notice I've switched up the order that the attributes appear within the call to `.new`. This doesn't matter when we're using keyword arguments because the keyword ensures that the attribute values are stored in the appropriate place. When using keyword arguments, all keywords are required by default, so if we try to skip one, we'll get an ArgumentError:
+
+<TerminalCommand>
+Dog.new(name: "Lennon Snow", breed: "Pomeranian", favorite_treats: "Apples, carrots, cheese")
+</TerminalCommand>
+
+<Note>
+
+I've created another executable file inside of the `bin` folder of today's demo starter code so if you'd like to try this out with me feel free. To start it up, you can run `./bin/keyword_arguments_demo` in your terminal (from the `demo` directory for today's code). To see some feedback, try creating a new Dog with the code in the following block. 
+Notice I've switched up the order that the attributes appear within the call to `.new`. This doesn't matter when we're using keyword arguments because the keyword ensures that the attribute values are stored in the appropriate place. When using keyword arguments, all keywords are required by default, so if we try to skip one, we'll get an ArgumentError. 
+Try out the code in the final block here so we can see what happens. (Next Slide)
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## Examining the ArgumentError
+
+<br />
+
+```rb
+Dog.new(name: "Lennon Snow", breed: "Pomeranian", 
+favorite_treats: "Apples, carrots, cheese")
+Traceback (most recent call last):
+        6: from /Users/dakotamartinez/.rvm/rubies/
+        ruby-2.6.6/bin/irb:23:in `<main>'
+        5: from /Users/dakotamartinez/.rvm/rubies/
+        ruby-2.6.6/bin/irb:23:in `load'
+        4: from /Users/dakotamartinez/.rvm/rubies/
+        ruby-2.6.6/lib/ruby/gems/2.6.0/gems/irb-1.0.0/
+        exe/irb:11:in `<top (required)>'
+        3: from (irb):10
+        2: from (irb):10:in `new'
+        1: from (irb):2:in `initialize'
+ArgumentError (missing keyword: age)
+```
+
+<Note>
+
+Notice that this error message is also a lot more helpful here. We're not just getting a mismatch between the given number of arguments and the expected number. We're actually being explicitly told what's missing!
+I'm going to take a brief moment to introduce one of the limitations of keyword arguments and discuss an alternative solution that is similar to what actually happens in the library you'll be using to handle behavior like this from the end of the week moving forward. If we want to allow more flexibility, but still allow the mass assignment of attribute values, we can use some metaprogramming to do it.
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## More Flexibility with Metaprogramming
+
+```rb
+class Dog 
+  attr_accessor :name, :age, :breed, :favorite_treats
+  def initialize(attributes = {})
+    attributes.each do |attr, value|
+      self.send("#{attr}=", value)
+    end
+  end
+end
+```
+
+Test this one with 
+
+
+<TerminalCommand>
+./bin/metaprogramming_demo
+</TerminalCommand>
+
+And try the following:
+
+```rb
+# all will work
+Dog.new(name: "Lennon Snow", breed: "Pomeranian", 
+favorite_treats: "Apples, carrots, cheese", age: "1 year")
+Dog.new
+Dog.new(name: "Lennon Snow")
+```
+
+<Note>
+
+Let's say we accept a hash of attributes as an argument for intialize and make it optional by setting its default argument to an empty hash. If we do this, then we'll be able to pass in as many or as few attributes as we like when we initialize a new Dog without causing an error.
+
+To try this one out, you can run ./bin/metaprogramming_demo in your terminal and then try out the commands in the block at the bottom here. We should be able to pass as many or as few arguments to `.new` as we wish without error. This will work as long as we have a setter method corresponding to each of the keys in the hash of attributes that we pass as an argument.
+
+The send method here is how we solve the problem of accessing a property (or method in this case) that we don't know about ahead of time. So the analogy in JavaScript would be using bracket notation after an object and putting in an expression which will be evaluated first and then used as the key to unlock the appropriate value. So, the send method is the way we call a method on an object whose name is stored in a variable (or in this case partially stored in a variable because we need to add an equals sign here to make it a setter) 
+
+Being able to write the code above from scratch is much less important at this point than understanding the implications of this approach. When you start using ActiveRecord later on in this phase, it'll sometimes be useful to keep in mind that something akin to this pattern is happening under the hood whenever you create a new instance of one of your ActiveRecord models. We'll be referring back to this pattern as we move forward, so we'll have a chance to review these ideas again later on. Know that a lot of the ruby magic is coming from metaprogramming (the code that creates other code-methods that create other methods)
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## Introducing Class Methods
+
+The main problem we're going to focus on today is how to keep track of multiple instances of the same class. 
+
+<Step>
+
+- Instance methods require an instance to be of any use
+- What if we want to have a method in the class that we can call without needing an instance first?
+- For those cases, we need a class method.
+
+</Step>
+
+<Note>
+
+The main problem we're going to focus on today is how to keep track of multiple instances of the same class. Before we get into how, I want to discuss why class methods might be necessary
+
+(Use arrows to expand)
+
+- Instance methods require an instance to be of any use
+- What if we want to have a method in the class that we can call without needing an instance first?
+- For those cases, we need a class method.
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## Example Class Methods
+
+
+<Step>
+
+- `.all` returns all of the instances we've created.
+- `.create` - makes a new instance and persists it.
+- `.find_by_name(name)` takes a name as an argument and returns the instance that has that name.
+- `.by_breed(breed)` takes a breed as an argument and returns an array of all pets that share that breed.
+- `.needs_feeding` returns an array of all dogs that need feeding.
+- `.needs_walking` returns an array of all dogs that need walking.
+
+</Step>
+
+<Note>
+
+Let's take a look at some class methods we might want to have in our dog class
+
+(Use arrows to expand)
+
+- `.all` returns all of the instances we've created.
+- `.create` - makes a new instance and persists it.
+- `.find_by_name(name)` takes a name as an argument and returns the instance that has that name.
+- `.by_breed(breed)` takes a breed as an argument and returns an array of all pets that share that breed.
+- `.needs_feeding` returns an array of all dogs that need feeding.
+- `.needs_walking` returns an array of all dogs that need walking.
+
+Notice that one thing these methods all have in common, is that they don't necessarily relate to a particular dog instance that we already have access to. So, we'd want to be able to call these methods without first having a Dog instance on hand (stored in a variable for example)
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## 🔑 Class methods vs Instance methods & Self 🔑
+
+#### Class methods are:
+  - Defined **on** the class
+  - Called **on** the class
+  - and `self` refers to the class
+#### Instance methods are:
+  - Called on an **in**stance of the class
+  - defined with**in** the class (but not *ON* it)
+  - and `self` refers to the **in**stance
+
+<Note>
+
+I've added the key emoji's here to indicate that this is a key concept to take away from today's lecture. 
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+## Class/Instance methods & Self Demo
+
+<!-- Begin Slide -->
+
+```rb
+class Dog
+  puts "Inside the Dog class, self is: #{self}"
+
+  @@all = []
+
+  def self.all
+    puts "Inside a class method in the Dog class, self is: #{self}"
+    @@all
+  end
+
+  attr_accessor :name
+
+  def initialize(name)
+    self.name = name
+  end
+
+  def say_hi
+    puts "Inside an instance method in the Dog class, self is: #{self}"
+    puts "Hi there, I'm #{self.name}"
+  end
+end
+```
+
+I've got this class defined within `bin/class_and_instace_methods_demo` which you can run using the following command:
+
+<TerminalCommand>
+./bin/class_and_instace_methods_demo
+</TerminalCommand>
+
+
+<Note>
+
+Here's a Demo class to illustrate the difference between class and instance methods both in the way that they are defined and the way that they are called.
+
+You can run this demo using the command below and take a look at the class itself inside of the bin/class_and_instace_methods_demo file.
+
+(Go to next slide)
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## Trying it Out
+
+```rb
+% ./bin/class_and_instace_methods_demo
+Inside the Dog class, self is: Dog
+[1] pry(main)> Dog.all
+Inside a class method in the Dog class, self is: Dog
+=> []
+[2] pry(main)> dog = Dog.new("Lennon")
+=> #<Dog:0x00007ff4e60bd488 @name="Lennon">
+[3] pry(main)> dog.say_hi
+Inside an instance method in the Dog class, self is: #<Dog:0x00007ff4e60bd488>
+Hi there, I'm Lennon
+=> nil
+```
+
+We can tell that `.all` is a class method in 2 main ways from looking at code. 
+
+1. The `.all` method is **defined** on `self` within the class (and `self` will be the class within the class)
+2. The `.all` method is **called** on `Dog` in the pry, which also tells us that `.all` must be a class method.
+
+Similarly, we can tell that `say_hi` is an instance method in 2 main ways from looking at the code:
+
+1. The `say_hi` method is **defined within but not *ON*** the class.
+2. The `say_hi` method is called upon an **instance** of the class (not the class itself)
+
+<Note>
+
+Look at main shared window here 
+
+The goal is to be able to switch between this and the previous slide and use the mouse for emphasis as you make the connections between what's written at the bottom of this slide and the defining code on previous slide and the calling code on ths slide.
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## How to Decide 
+
+> When it comes to deciding whether a method should be a class method or an instance method, the main determining factor is how you plan to call the method. Will you call it directly **on the class**? If so-make it a **class** method. Will you call it **on an instance** of the class? If so-make it an **instance** method
+
+<Note>
+
+
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+# ☕️ Break!!! ☕️
+
+<Note>
+
+
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## Dog Walker CLI Part 3
+
+### Key Features we're going to add to our Dog Walker CLI:
+
+- Add the ability to view all dogs that need feeding
+- Add the ability to view all dogs that need walking
+
+
+<Note>
+
+
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## Key Refactors for Dog Walker CLI
+
+- Dog class
+  - refactor initialize method to use keyword arguments.
+  - add a `.all` method and `@@all` class variable to keep track of all the dogs
+  - add a `#save` method that will save an instance of the dog class to `@@all`
+  - add a `.create(attributes)` method that take attributes as an argument and will instantiate and save a new instance of the dog class.
+  - add a `.needs_feeding` method that returns an array of all dogs that need feeding.
+  - add a `.needs_walking` method that returns an array of all dogs that need walking.
+  
+- In CLI
+  - Add menu options for viewing all dogs that need feeding and all dogs that need walking.
+  - rework the parts of the cli that were expecting to find all of our dogs in `DOGS` to use the `Dog.all` method instead.
+    - we'll use `Dog.all` instead of `DOGS` to access the array of Dog instances
+    - within the `add_dog` method, we'll create an instance of the `Dog` class using the `.create` method
+
+<Note>
+
+
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+![Program Flow](https://raw.githubusercontent.com/learn-co-students/SENG-LIVE-031422-phase-3/main/03_object_oriented_ruby_pt2/demo/program-flow.drawio.svg)
+
+<Note>
+
+
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+![Class and Instance Methods Diagram](https://raw.githubusercontent.com/learn-co-students/SENG-LIVE-031422-phase-3/main/assets/oo-ruby-with-class-methods.drawio.svg)
+
+<Note>
+
+
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 

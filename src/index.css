@@ -1,16 +1,10 @@
-body {
-  background-color: aqua;
-}
-
 h1, h2, h3, h4, h5, h6 {
   text-align: center;
-}
-
-h1, h2, h3, h4, h5, h6, ul, ol {
   width: 85%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 auto 0.5em;
 }
+
 
 li {
   margin: 0.25em 0;
