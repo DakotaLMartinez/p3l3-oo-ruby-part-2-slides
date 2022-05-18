@@ -1,4 +1,5 @@
 import TerminalCommand from './components/TerminalCommand';
+import Repl from './components/Repl';
 
 # Object Oriented Ruby part 2
 
@@ -7,16 +8,31 @@ import TerminalCommand from './components/TerminalCommand';
 
 <!-- Begin Slide -->
 
-## Key Concepts for the day:
+## Key Topics for the day:
 
-- Mass assignment, keyword arguments
+- Advanced class queries/methods
+- Advanced instance methods
+- Private methods
+- Mass Assignment (& metaprogramming)
+
+## Key Skills
 - Class methods vs Instance methods
 - How to use the `self` keyword and identify what it will refer to
 - Class variables vs Instance variables
 
 <Note>
 
-The methods we'll be working on today are related to persisting and retrieving Dogs/Appointments. These are important tasks that we'll continue to do as we introduce new concepts like databases and ActiveRecord later on in the week. The lectures coming up over the next few days will be introducing variations on the same themes. You'll be seeing how the new concepts apply to the application we've been working on throughout the phase.
+The key topics for the day are:
+- Advanced class queries/methods
+- Advanced instance methods
+- Private methods
+- Mass Assignment (& metaprogramming)
+And the key skills you'll be working on are:
+- how to identify and distinguish between Class methods and Instance methods
+- how to use the `self` keyword and identify what it will refer to
+- how to distinguish between class and instance variables
+
+The methods we'll be working on today are related to persisting and retrieving Dogs– both of which are are important tasks that we'll continue to do as we introduce new concepts like databases and ActiveRecord later on in the week. The lectures coming up over the next few days will be introducing variations on the same themes. You'll be seeing how the new concepts apply to the application we've been working on throughout the phase.
 
 ----
 ----
@@ -43,12 +59,12 @@ This is what our initialize method looks like currently:
 
 ```rb
 class Dog
-  attr_accessor :name, :age, :breed, :favorite_treats
-  def initialize(name, age, breed, favorite_treats)
+  attr_accessor :name, :age, :breed, :image_url
+  def initialize(name, age, breed, image_url)
     @name = name
     @age = age
     @breed = breed
-    @favorite_treats = favorite_treats
+    @image_url = image_url
   end
 end
 ```
@@ -56,11 +72,14 @@ end
 And creating a new instance looks like this:
 
 ```rb
-dog = Dog.new("Lennon Snow", "1 year", "Pomeranian", "Cheese!!!")
+dog = Dog.new("Lennon Snow", "1 year", "Pomeranian", "https://res.cloudinary.com/dnocv6uwb/image/upload/v1609370267/dakota-and-lennon-square-compressed_hoenfo.jpg")
 ```
 
 <Note>
 
+The first concept we're going to talk about about today is keyword arguments and mass assignment.
+
+This is what our initialize method currently looks like.
 There are a couple of downsides to this approach. 
 
 1. We have to remember the proper order of the arguments or we'll get values assigned to the wrong attributes. 
@@ -92,18 +111,30 @@ Using keyword arguments instead will solve both of these problems:
 
 ```rb
 class Dog
-  attr_accessor :name, :age, :breed, :favorite_treats
-  def initialize(name:, age:, breed:, favorite_treats:)
+  attr_accessor :name, :age, :breed, :image_url
+  def initialize(name:, age:, breed:, image_url:)
     @name = name
     @age = age
     @breed = breed
-    @favorite_treats = favorite_treats
+    @image_url = image_url
   end
 end
 ```
 
+This will allow us to create a new dog like so:
+
+```rb
+@lennon = Dog.new(
+  name: "Lennon Snow",
+  age: "2 years",
+  breed: "Pomeranian",
+  image_url: "https://res.cloudinary.com/dnocv6uwb/image/upload/v1609370267/dakota-and-lennon-square-compressed_hoenfo.jpg"
+)
+```
+
 <Note>
 
+So, one thing we could do is to refactor initialize to use a syntax called keyword arguments. This will allow us to create a new dog by passing in a sequence of key-value pairs to our .new method call. 
 
 ----
 ----
@@ -126,30 +157,12 @@ end
 
 ## Testing it out
 
-Run 
+<Repl src="https://replit.com/@DakotaMartinez3/Keyword-Arguments#main.rb" noembed/>
 
-<TerminalCommand>
-./bin/keyword_arguments_demo
-</TerminalCommand>
-
-to test this out
-
-<TerminalCommand>
-Dog.new(name: "Lennon Snow", breed: "Pomeranian", favorite_treats: "Apples, carrots, cheese", age: "almost 2 years")
-</TerminalCommand>
-
-Notice I've switched up the order that the attributes appear within the call to `.new`. This doesn't matter when we're using keyword arguments because the keyword ensures that the attribute values are stored in the appropriate place. When using keyword arguments, all keywords are required by default, so if we try to skip one, we'll get an ArgumentError:
-
-<TerminalCommand>
-Dog.new(name: "Lennon Snow", breed: "Pomeranian", favorite_treats: "Apples, carrots, cheese")
-</TerminalCommand>
 
 <Note>
 
-I've created another executable file inside of the `bin` folder of today's demo starter code so if you'd like to try this out with me feel free. To start it up, you can run `./bin/keyword_arguments_demo` in your terminal (from the `demo` directory for today's code). To see some feedback, try creating a new Dog with the code in the following block. 
-Notice I've switched up the order that the attributes appear within the call to `.new`. This doesn't matter when we're using keyword arguments because the keyword ensures that the attribute values are stored in the appropriate place. When using keyword arguments, all keywords are required by default, so if we try to skip one, we'll get an ArgumentError. 
-Try out the code in the final block here so we can see what happens. (Next Slide)
-
+On this side we have an embedded repl.it. Let's click run here so we can interact with the code.
 ----
 ----
 ----
@@ -167,50 +180,6 @@ Try out the code in the final block here so we can see what happens. (Next Slide
 
 --- 
 
-<!-- Begin Slide -->
-
-## Examining the ArgumentError
-
-<br />
-
-```rb
-Dog.new(name: "Lennon Snow", breed: "Pomeranian", 
-favorite_treats: "Apples, carrots, cheese")
-Traceback (most recent call last):
-        6: from /Users/dakotamartinez/.rvm/rubies/
-        ruby-2.6.6/bin/irb:23:in `<main>'
-        5: from /Users/dakotamartinez/.rvm/rubies/
-        ruby-2.6.6/bin/irb:23:in `load'
-        4: from /Users/dakotamartinez/.rvm/rubies/
-        ruby-2.6.6/lib/ruby/gems/2.6.0/gems/irb-1.0.0/
-        exe/irb:11:in `<top (required)>'
-        3: from (irb):10
-        2: from (irb):10:in `new'
-        1: from (irb):2:in `initialize'
-ArgumentError (missing keyword: age)
-```
-
-<Note>
-
-Notice that this error message is also a lot more helpful here. We're not just getting a mismatch between the given number of arguments and the expected number. We're actually being explicitly told what's missing!
-I'm going to take a brief moment to introduce one of the limitations of keyword arguments and discuss an alternative solution that is similar to what actually happens in the library you'll be using to handle behavior like this from the end of the week moving forward. If we want to allow more flexibility, but still allow the mass assignment of attribute values, we can use some metaprogramming to do it.
-
-----
-----
-----
-----
-----
-----
-----
-----
-----
-----
-
-</Note>
-
-<!-- End Slide -->
-
---- 
 
 <!-- Begin Slide -->
 
@@ -218,7 +187,7 @@ I'm going to take a brief moment to introduce one of the limitations of keyword 
 
 ```rb
 class Dog 
-  attr_accessor :name, :age, :breed, :favorite_treats
+  attr_accessor :name, :age, :breed, :image_url, :favorite_treats
   def initialize(attributes = {})
     attributes.each do |attr, value|
       self.send("#{attr}=", value)
@@ -227,28 +196,17 @@ class Dog
 end
 ```
 
-Test this one with 
-
-
-<TerminalCommand>
-./bin/metaprogramming_demo
-</TerminalCommand>
-
-And try the following:
-
-```rb
-# all will work
-Dog.new(name: "Lennon Snow", breed: "Pomeranian", 
-favorite_treats: "Apples, carrots, cheese", age: "1 year")
-Dog.new
-Dog.new(name: "Lennon Snow")
-```
+<Repl src="https://replit.com/@DakotaMartinez3/Metaprogramming-and-mass-assignment#main.rb" height="600px" />
 
 <Note>
 
+We can get additional flexibility when we do mass assignment with metaprogramming. 
+
+Run repl.it right away to give it time to load.
+
 Let's say we accept a hash of attributes as an argument for intialize and make it optional by setting its default argument to an empty hash. If we do this, then we'll be able to pass in as many or as few attributes as we like when we initialize a new Dog without causing an error.
 
-To try this one out, you can run ./bin/metaprogramming_demo in your terminal and then try out the commands in the block at the bottom here. We should be able to pass as many or as few arguments to `.new` as we wish without error. This will work as long as we have a setter method corresponding to each of the keys in the hash of attributes that we pass as an argument.
+Demo in the repl.it 
 
 The send method here is how we solve the problem of accessing a property (or method in this case) that we don't know about ahead of time. So the analogy in JavaScript would be using bracket notation after an object and putting in an expression which will be evaluated first and then used as the key to unlock the appropriate value. So, the send method is the way we call a method on an object whose name is stored in a variable (or in this case partially stored in a variable because we need to add an equals sign here to make it a setter) 
 
@@ -369,8 +327,8 @@ Notice that one thing these methods all have in common, is that they don't neces
   - Called **on** the class
   - and `self` refers to the class
 #### Instance methods are:
+  - Defined with**in** the class (but not *ON* it)
   - Called on an **in**stance of the class
-  - defined with**in** the class (but not *ON* it)
   - and `self` refers to the **in**stance
 
 <Note>
@@ -422,11 +380,7 @@ class Dog
 end
 ```
 
-I've got this class defined within `bin/class_and_instace_methods_demo` which you can run using the following command:
-
-<TerminalCommand>
-./bin/class_and_instace_methods_demo
-</TerminalCommand>
+<Repl src="https://replit.com/@DakotaMartinez3/Class-and-Instance-Methods-and-self#main.rb" height="500px"/>
 
 
 <Note>
@@ -456,21 +410,7 @@ You can run this demo using the command below and take a look at the class itsel
 
 <!-- Begin Slide -->
 
-## Trying it Out
-
-```rb
-% ./bin/class_and_instace_methods_demo
-Inside the Dog class, self is: Dog
-[1] pry(main)> Dog.all
-Inside a class method in the Dog class, self is: Dog
-=> []
-[2] pry(main)> dog = Dog.new("Lennon")
-=> #<Dog:0x00007ff4e60bd488 @name="Lennon">
-[3] pry(main)> dog.say_hi
-Inside an instance method in the Dog class, self is: #<Dog:0x00007ff4e60bd488>
-Hi there, I'm Lennon
-=> nil
-```
+## Telling the Difference
 
 We can tell that `.all` is a class method in 2 main ways from looking at code. 
 
@@ -592,44 +532,25 @@ The goal is to be able to switch between this and the previous slide and use the
 
 ## Key Refactors for Dog Walker CLI
 
-- Dog class
+Dog class
   - refactor initialize method to use keyword arguments.
   - add a `.all` method and `@@all` class variable to keep track of all the dogs
   - add a `#save` method that will save an instance of the dog class to `@@all`
   - add a `.create(attributes)` method that take attributes as an argument and will instantiate and save a new instance of the dog class.
-  - add a `.needs_feeding` method that returns an array of all dogs that need feeding.
+  - add a `.hungry` method that returns an array of all dogs that need feeding.
   - add a `.needs_walking` method that returns an array of all dogs that need walking.
   
-- In CLI
+In CLI
   - Add menu options for viewing all dogs that need feeding and all dogs that need walking.
-  - rework the parts of the cli that were expecting to find all of our dogs in `DOGS` to use the `Dog.all` method instead.
-    - we'll use `Dog.all` instead of `DOGS` to access the array of Dog instances
+  - rework the parts of the cli that were expecting to find all of our dogs in `$dogs` to use the `Dog.all` method instead.
+    - we'll use `Dog.all` instead of `$digs` to access the array of Dog instances
     - within the `add_dog` method, we'll create an instance of the `Dog` class using the `.create` method
 
-<Note>
+In dogs_data
+  - We'll remove the call to `.map` at the end of the file so that `$dogs` is an array of hashes containing dog info again.
 
-
-
-----
-----
-----
-----
-----
-----
-----
-----
-----
-----
-
-</Note>
-
-<!-- End Slide -->
-
---- 
-
-<!-- Begin Slide -->
-
-![Program Flow](https://raw.githubusercontent.com/learn-co-students/SENG-LIVE-031422-phase-3/main/03_object_oriented_ruby_pt2/demo/program-flow.drawio.svg)
+In bin/run
+  - We'll use `$dogs` and some of our new methods from `Dog` to create and save dogs from the `lib/dogs_data.rb` file
 
 <Note>
 
