@@ -157,7 +157,7 @@ So, one thing we could do is to refactor initialize to use a syntax called keywo
 
 ## Testing it out
 
-<Repl src="https://replit.com/@DakotaMartinez3/Keyword-Arguments#main.rb" noembed/>
+<Repl src="https://www.jdoodle.com/embed/v0/4PfA" />
 
 
 <Note>
@@ -281,8 +281,8 @@ The main problem we're going to focus on today is how to keep track of multiple 
 - `.create` - makes a new instance and persists it.
 - `.find_by_name(name)` takes a name as an argument and returns the instance that has that name.
 - `.by_breed(breed)` takes a breed as an argument and returns an array of all pets that share that breed.
-- `.needs_feeding` returns an array of all dogs that need feeding.
 - `.needs_walking` returns an array of all dogs that need walking.
+- `.hungry` returns an array of all dogs that need feeding.
 
 </Step>
 
@@ -296,10 +296,10 @@ Let's take a look at some class methods we might want to have in our dog class
 - `.create` - makes a new instance and persists it.
 - `.find_by_name(name)` takes a name as an argument and returns the instance that has that name.
 - `.by_breed(breed)` takes a breed as an argument and returns an array of all pets that share that breed.
+- `.hungry` returns an array of all dogs that need walking.
 - `.needs_feeding` returns an array of all dogs that need feeding.
-- `.needs_walking` returns an array of all dogs that need walking.
 
-Notice that one thing these methods all have in common, is that they don't necessarily relate to a particular dog instance that we already have access to. So, we'd want to be able to call these methods without first having a Dog instance on hand (stored in a variable for example)
+Notice that one thing these methods all have in common, is that they don't necessarily relate to a particular dog instance that we already have access to. So, we'd want to be able to call these methods directly on the class without first having a Dog instance on hand (stored in a variable for example)
 
 ----
 ----
@@ -498,6 +498,32 @@ The goal is to be able to switch between this and the previous slide and use the
 --- 
 
 <!-- Begin Slide -->
+## Visualizing Class & Instance Methods + Self
+
+![Class and Instance Methods Diagram](https://raw.githubusercontent.com/learn-co-students/SENG-LIVE-042522-phase-3/main/assets/oo-ruby-with-class-methods.drawio.svg)
+
+<Note>
+
+
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
 
 ## Dog Walker CLI Part 3
 
@@ -543,39 +569,12 @@ Dog class
 In CLI
   - Add menu options for viewing all dogs that need feeding and all dogs that need walking.
   - rework the parts of the cli that were expecting to find all of our dogs in `$dogs` to use the `Dog.all` method instead.
-    - we'll use `Dog.all` instead of `$digs` to access the array of Dog instances
+    - we'll use `Dog.all` instead of `$dogs` to access the array of Dog instances
     - within the `add_dog` method, we'll create an instance of the `Dog` class using the `.create` method
+  - within handle_choice, add logic for listing dogs who need walking or are hungry.
 
 In dogs_data
-  - We'll remove the call to `.map` at the end of the file so that `$dogs` is an array of hashes containing dog info again.
-
-In bin/run
-  - We'll use `$dogs` and some of our new methods from `Dog` to create and save dogs from the `lib/dogs_data.rb` file
-
-<Note>
-
-
-
-----
-----
-----
-----
-----
-----
-----
-----
-----
-----
-
-</Note>
-
-<!-- End Slide -->
-
---- 
-
-<!-- Begin Slide -->
-
-![Class and Instance Methods Diagram](https://raw.githubusercontent.com/learn-co-students/SENG-LIVE-031422-phase-3/main/assets/oo-ruby-with-class-methods.drawio.svg)
+  - Within the block that we pass to `.map` at the end of the file, invoke the `.create` method so that we use the data in all of the hashes to save the instances to `@@all` within the `Dog` class.
 
 <Note>
 
