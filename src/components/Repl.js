@@ -10,7 +10,7 @@ function Repl({ src, width, height, noembed }) {
       <br />
       <iframe
         frameborder="0"
-        src={src}
+        src={replUrl}
         style={styles}
         className="frame"
       ></iframe>
