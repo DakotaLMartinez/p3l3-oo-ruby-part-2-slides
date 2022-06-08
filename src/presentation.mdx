@@ -556,6 +556,110 @@ The goal is to be able to switch between this and the previous slide and use the
 
 <!-- Begin Slide -->
 
+## Breaking our Task into Manageable Chunks
+
+- **Add ability to save dogs within the Dog class** 
+  - Changes:
+    - `@@all` will store them
+    - `Dog.all` will retreive them
+    - `Dog#save` will save them to `@@all`
+    - `Dog.create` will initialize, save and return a new dog
+  - Test this out by first using the console 
+  - then refactoring our CLI code to use these new methods
+  - then reworking the dogs_data.rb file so that it populates `Dog.all` instead of creating a global variable
+
+
+<Note>
+
+
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## Breaking our Task into Manageable Chunks
+
+- **Add ability to view all dogs who need a walk** 
+  - Changes:
+    - `Dog.needs_walking` will return all dogs that need a walk
+  - Test this out by using the console to:
+    - call `Dog.needs_walking`  
+    - walking the last dog `Dog.all.last.walk`
+    - check to see if the dog is still there with `Dog.needs_walking` (if not, you're good to go!)
+  - then refactoring our CLI code to use this new method when the user picks option "5"
+
+<Note>
+
+
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
+## Breaking our Task into Manageable Chunks
+
+- **Add ability to view all dogs who are hungry** 
+  - Changes:
+    - `Dog.hungry` will return all dogs that need to be fed
+  - Test this out by using the console to:
+    - call `Dog.hungry`  
+    - feed the last dog `Dog.all.last.feed`
+    - check to see if the dog is still there with `Dog.hungry` (if not, you're good to go!)
+  - then refactoring our CLI code to use this new method when the user picks option "6"
+
+<Note>
+
+
+
+----
+----
+----
+----
+----
+----
+----
+----
+----
+----
+
+</Note>
+
+<!-- End Slide -->
+
+--- 
+
+<!-- Begin Slide -->
+
 ## Key Refactors for Dog Walker CLI
 
 Dog class
